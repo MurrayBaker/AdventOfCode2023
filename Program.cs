@@ -20,19 +20,15 @@
                 })).ToArray()))
         .Select(l => int.Parse(l.First(char.IsDigit).ToString()) * 10 + int.Parse(l.Last(char.IsDigit).ToString())).Sum(),
         2 => File.ReadAllLines("Day2.txt")
-            .Select(l => (new string(l.SkipWhile(c => c != ':').Skip(1).ToArray()), int.Parse(l.Skip(5).TakeWhile(c => c != ':').ToArray())))
-            .Where(game => !game.Item1
-                .Split(";")
-                .Any(g => g.Split(",")
-                    .Any(pull => pull switch
-                    {
-                        var s when s.Split(' ')[2].First() == 'r' => int.Parse(s.Split(' ')[1]) > 12,
-                        var s when s.Split(' ')[2].First() == 'g' => int.Parse(s.Split(' ')[1]) > 13,
-                        var s when s.Split(' ')[2].First() == 'b' => int.Parse(s.Split(' ')[1]) > 14,
-                        _ => throw new Exception("Parsed this wrong"),
-                    })))
-            .Select(game => game.Item2)
-            .Sum(),
+            .Select(l => new string(l.SkipWhile(c => c != ':').Skip(1).ToArray()))
+            .Select(l => l.Split(";"))
+            .Select(l => l.Aggregate((0, 0, 0), (dictionary, game) => 
+                (
+                    Math.Max(dictionary.Item1, int.Parse(game.Split(",").FirstOrDefault(g => g.Split(' ')[2] == "blue")?.Split(' ')[1] ?? "0")),
+                    Math.Max(dictionary.Item2, int.Parse(game.Split(",").FirstOrDefault(g => g.Split(' ')[2] == "red")?.Split(' ')[1] ?? "0")),
+                    Math.Max(dictionary.Item3, int.Parse(game.Split(",").FirstOrDefault(g => g.Split(' ')[2] == "green")?.Split(' ')[1] ?? "0"))
+                )))
+            .Aggregate(0, (a, b) => a + (b.Item1 * b.Item2 * b.Item3)),
         _ => throw new NotImplementedException("Sam hasn't done this yet"),
     });
-    
+
