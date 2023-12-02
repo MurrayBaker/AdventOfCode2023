@@ -1,8 +1,10 @@
 ﻿Console.WriteLine(
-    File.ReadAllLines("Day1.txt")
+    DateTime.Now.Day switch
+    {
+        1 => File.ReadAllLines("Day1.txt")
         .Select(l => new string(l
-            .Select((c, i) => char.IsDigit(c) 
-                ? c 
+            .Select((c, i) => char.IsDigit(c)
+                ? c
                 : (new string(l.Skip(i).Take(5).ToArray()) switch
                 {
                     var s when s.StartsWith("one") => '1',
@@ -16,4 +18,21 @@
                     var s when s.StartsWith("nine") => '9',
                     _ => 'x',
                 })).ToArray()))
-        .Select(l => int.Parse(l.First(char.IsDigit).ToString()) * 10 + int.Parse(l.Last(char.IsDigit).ToString())).Sum());
+        .Select(l => int.Parse(l.First(char.IsDigit).ToString()) * 10 + int.Parse(l.Last(char.IsDigit).ToString())).Sum(),
+        2 => File.ReadAllLines("Day2.txt")
+            .Select(l => (new string(l.SkipWhile(c => c != ':').Skip(1).ToArray()), int.Parse(l.Skip(5).TakeWhile(c => c != ':').ToArray())))
+            .Where(game => !game.Item1
+                .Split(";")
+                .Any(g => g.Split(",")
+                    .Any(pull => pull switch
+                    {
+                        var s when s.Split(' ')[2].First() == 'r' => int.Parse(s.Split(' ')[1]) > 12,
+                        var s when s.Split(' ')[2].First() == 'g' => int.Parse(s.Split(' ')[1]) > 13,
+                        var s when s.Split(' ')[2].First() == 'b' => int.Parse(s.Split(' ')[1]) > 14,
+                        _ => throw new Exception("Parsed this wrong"),
+                    })))
+            .Select(game => game.Item2)
+            .Sum(),
+        _ => throw new NotImplementedException("Sam hasn't done this yet"),
+    });
+    
