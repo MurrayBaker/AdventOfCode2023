@@ -29,6 +29,14 @@
                     Math.Max(dictionary.Item3, int.Parse(game.Split(",").FirstOrDefault(g => g.Split(' ')[2] == "green")?.Split(' ')[1] ?? "0"))
                 )))
             .Aggregate(0, (a, b) => a + (b.Item1 * b.Item2 * b.Item3)),
+        3 => (from _ in new (int, int)[] { (0, 0) }
+             let lines = File.ReadAllLines("Day3.txt")
+             let symbolCoordinates = lines.SelectMany((l, y) => l.Select((c, x) => (c, x, y)).Where(t => !char.IsDigit(t.c) && t.c != '.').Select(t => (t.x, t.y)))
+             let adjacentCoordinates = symbolCoordinates.SelectMany(point => new int[] { point.x - 1, point.x, point.x + 1 }.SelectMany(x => new (int x, int y)[] { (x, point.y - 1), (x, point.y), (x, point.y + 1) }).Where(p => p != (point.x, point.y))).ToArray()
+             let goodCoordinates = adjacentCoordinates.Where(ac => char.IsDigit(lines[ac.y][ac.x])).ToArray()
+             let startCoordinates = goodCoordinates.Select(c => (x: c.x - lines[c.y].Reverse().Skip(lines[c.y].Length - c.x).TakeWhile(char.IsDigit).Count(), c.y)).Distinct().ToArray()
+             from startCoordinate in startCoordinates
+             select int.Parse(new string(lines[startCoordinate.y].Skip(startCoordinate.x).TakeWhile(char.IsDigit).ToArray()))).Sum(),
         _ => throw new NotImplementedException("Sam hasn't done this yet"),
     });
 
