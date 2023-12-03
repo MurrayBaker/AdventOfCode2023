@@ -31,12 +31,12 @@
             .Aggregate(0, (a, b) => a + (b.Item1 * b.Item2 * b.Item3)),
         3 => (from _ in new (int, int)[] { (0, 0) }
              let lines = File.ReadAllLines("Day3.txt")
-             let symbolCoordinates = lines.SelectMany((l, y) => l.Select((c, x) => (c, x, y)).Where(t => !char.IsDigit(t.c) && t.c != '.').Select(t => (t.x, t.y)))
-             let adjacentCoordinates = symbolCoordinates.SelectMany(point => new int[] { point.x - 1, point.x, point.x + 1 }.SelectMany(x => new (int x, int y)[] { (x, point.y - 1), (x, point.y), (x, point.y + 1) }).Where(p => p != (point.x, point.y))).ToArray()
+             let gearCoordinates = lines.SelectMany((l, y) => l.Select((c, x) => (c, x, y)).Where(t => t.c == '*').Select(t => (t.x, t.y)))
+             let adjacentCoordinates = gearCoordinates.SelectMany(point => new int[] { point.x - 1, point.x, point.x + 1 }.SelectMany(x => new (int x, int y)[] { (x, point.y - 1), (x, point.y), (x, point.y + 1) }).Where(p => p != (point.x, point.y)).Select(p => (gear: point, p.x, p.y))).ToArray()
              let goodCoordinates = adjacentCoordinates.Where(ac => char.IsDigit(lines[ac.y][ac.x])).ToArray()
-             let startCoordinates = goodCoordinates.Select(c => (x: c.x - lines[c.y].Reverse().Skip(lines[c.y].Length - c.x).TakeWhile(char.IsDigit).Count(), c.y)).Distinct().ToArray()
-             from startCoordinate in startCoordinates
-             select int.Parse(new string(lines[startCoordinate.y].Skip(startCoordinate.x).TakeWhile(char.IsDigit).ToArray()))).Sum(),
+             let startCoordinates = goodCoordinates.Select(c => (c.gear, x: c.x - lines[c.y].Reverse().Skip(lines[c.y].Length - c.x).TakeWhile(char.IsDigit).Count(), c.y)).Distinct().ToArray()
+             from coordinatePair in startCoordinates.GroupBy(c => c.gear).Where(g => g.Count() == 2).Select(g => g.ToList())
+             select (int.Parse(new string(lines[coordinatePair[0].y].Skip(coordinatePair[0].x).TakeWhile(char.IsDigit).ToArray())) * int.Parse(new string(lines[coordinatePair[1].y].Skip(coordinatePair[1].x).TakeWhile(char.IsDigit).ToArray())))).Sum(),
         _ => throw new NotImplementedException("Sam hasn't done this yet"),
     });
 
