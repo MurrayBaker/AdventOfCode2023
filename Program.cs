@@ -41,8 +41,19 @@ Console.WriteLine(
              select (int.Parse(new string(lines[coordinatePair[0].y].Skip(coordinatePair[0].x).TakeWhile(char.IsDigit).ToArray())) * int.Parse(new string(lines[coordinatePair[1].y].Skip(coordinatePair[1].x).TakeWhile(char.IsDigit).ToArray())))).Sum(),
         4 => File.ReadAllLines("Day4.txt")
             .Select(l => new string(l.SkipWhile(c => c != ':').Skip(2).ToArray()))
-            .Select(l => l.Split("|")[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).Intersect(l.Split("|")[1].Split(' ', StringSplitOptions.RemoveEmptyEntries)).Count())
-            .Aggregate(0, (total, count) => total += (int)Math.Pow(2, count - 1)),
+            .Select((l, i) => (matches: l.Split("|")[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).Intersect(l.Split("|")[1].Split(' ', StringSplitOptions.RemoveEmptyEntries)).Count(), cardNumber: i))
+            .Aggregate(Enumerable.Range(0, 1000).ToDictionary(k => k, e => 0), (total, cardInformation) => 
+            {
+                total[cardInformation.cardNumber] += 1;
+
+                for (var i = 0; i < cardInformation.matches; i++)
+                {
+                    total[cardInformation.cardNumber + i + 1] += total[cardInformation.cardNumber];
+                }
+
+                return total;
+            })
+            .Values.Sum(),
         _ => throw new NotImplementedException("Sam hasn't done this yet"),
     });
 
