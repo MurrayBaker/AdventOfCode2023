@@ -1,4 +1,6 @@
-﻿Console.WriteLine(
+﻿using System.Numerics;
+
+Console.WriteLine(
     DateTime.Now.Day switch
     {
         1 => File.ReadAllLines("Day1.txt")
@@ -37,6 +39,10 @@
              let startCoordinates = goodCoordinates.Select(c => (c.gear, x: c.x - lines[c.y].Reverse().Skip(lines[c.y].Length - c.x).TakeWhile(char.IsDigit).Count(), c.y)).Distinct().ToArray()
              from coordinatePair in startCoordinates.GroupBy(c => c.gear).Where(g => g.Count() == 2).Select(g => g.ToList())
              select (int.Parse(new string(lines[coordinatePair[0].y].Skip(coordinatePair[0].x).TakeWhile(char.IsDigit).ToArray())) * int.Parse(new string(lines[coordinatePair[1].y].Skip(coordinatePair[1].x).TakeWhile(char.IsDigit).ToArray())))).Sum(),
+        4 => File.ReadAllLines("Day4.txt")
+            .Select(l => new string(l.SkipWhile(c => c != ':').Skip(2).ToArray()))
+            .Select(l => l.Split("|")[0].Split(' ', StringSplitOptions.RemoveEmptyEntries).Intersect(l.Split("|")[1].Split(' ', StringSplitOptions.RemoveEmptyEntries)).Count())
+            .Aggregate(0, (total, count) => total += (int)Math.Pow(2, count - 1)),
         _ => throw new NotImplementedException("Sam hasn't done this yet"),
     });
 
